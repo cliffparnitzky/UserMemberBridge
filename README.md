@@ -16,4 +16,4 @@ http://www.contao.org/en/extension-list/view/UserMemberBridge.de.html
 Tracker
 -------
 
-http://www.contao-forge.org/projects/usermemberbridge/issues
+https://github.com/cliffparnitzky/UserMemberBridge/issues

@@ -10,7 +10,7 @@ Installation
 The extension can be installed using the Contao extension manager in the Contao
 back end. If you prefer to install it manually, download the files here:
 
-http://www.contao.org/en/extension-list/view/UserMemberBridge.de.html
+http://www.contao.org/en/extension-list/view/UserMemberBridge.en.html
 
 
 Tracker

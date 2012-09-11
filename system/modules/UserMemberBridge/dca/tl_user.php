@@ -30,10 +30,17 @@
 /**
  * Extending paletts
  */
-$arrPaletts = array('admin', 'group', 'extend');
-foreach ($arrPaletts as $palett)
+foreach ($GLOBALS['TL_DCA']['tl_user']['palettes'] as $key => $row)
 {
-	$GLOBALS['TL_DCA']['tl_user']['palettes'][$palett] = str_replace('{backend_legend:hide}', '{userMemberBridge_legend:hide},assignedMember;{backend_legend:hide}', $GLOBALS['TL_DCA']['tl_user']['palettes'][$palett]);
+    if ($key == '__selector__' || $key == 'login')
+    {    
+        continue;
+    }
+
+    $arrPalettes = explode(";", $row);
+    $arrPalettes[] = '{userMemberBridge_legend:hide},assignedMember';
+    
+    $GLOBALS['TL_DCA']['tl_user']['palettes'][$key] = implode(";", $arrPalettes);
 }
 
 /**
@@ -88,7 +95,7 @@ class tl_user_assignedMemeber extends Backend
 	 * Returns all members that are not assigned to an user
 	 */
 	public function checkMemberIsAssignable($varValue, DataContainer $dc) {
-		$memberList = $this->Database->prepare("SELECT id FROM tl_user WHERE assignedMember = $varValue")->execute();
+		$memberList = $this->Database->prepare("SELECT id FROM tl_user WHERE assignedMember = ?")->execute($varValue);
 		if ($varValue > 0 && $memberList->next() && $memberList->id != $dc->id){
 			throw new Exception($GLOBALS['TL_LANG']['tl_user']['assignedMember']['allreadyAssignedError']);
 		}
@@ -101,12 +108,12 @@ class tl_user_assignedMemeber extends Backend
 	 */
 	public function getUnassignedMembers() {
 		$unassignedMembers = array();
-		$unassignedMembers[0] = '-';
+		$unassignedMembers[''] = '-';
 		
 		$memberList = $this->Database->prepare("SELECT id, lastname, firstname FROM tl_member ORDER BY lastname, firstname")->execute();
 		
 		while ($memberList->next()) {
-			$unassignedMembers[$memberList->id] = $memberList->lastname . ', ' . $memberList->firstname . ' (' . $memberList->id . ')';
+			$unassignedMembers[$memberList->id] = ($memberList->lastname . ', ' . $memberList->firstname . ' (' . $memberList->id . ')');
 		}
 
 		return $unassignedMembers;

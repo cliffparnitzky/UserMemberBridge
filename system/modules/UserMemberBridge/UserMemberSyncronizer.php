@@ -346,6 +346,7 @@ class UserMemberSyncronizer extends Backend {
 		$widget->id = 'member';
 		$widget->name = 'member';
 		$widget->mandatory = true;
+		$widget->required = true;
 		$widget->label = $GLOBALS['TL_LANG']['tl_user']['createUserForMember_member'][0];
 		$widget->multiple = false;
 		$options = array();
@@ -394,6 +395,7 @@ class UserMemberSyncronizer extends Backend {
 		$widget->id = 'user';
 		$widget->name = 'user';
 		$widget->mandatory = true;
+		$widget->required = true;
 		$widget->label = $GLOBALS['TL_LANG']['tl_member']['createMemberForUser_user'][0];
 		$widget->multiple = false;
 		$options = array();

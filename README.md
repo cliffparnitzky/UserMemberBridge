@@ -1,5 +1,5 @@
-Contao User Member Bridge Extension
-===================================
+Contao Extension: UserMemberBridge
+==================================
 
 Assigning members to users for synchronizing common account data.
 
@@ -23,7 +23,7 @@ Compatibility
 -------------
 
 - min. version: Contao 2.9.5
-- max. version: Contao 2.11.6
+- max. version: Contao 2.11.x
 
 
 Dependency

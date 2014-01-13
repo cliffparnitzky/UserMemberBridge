@@ -2,7 +2,7 @@
 
 /**
  * Contao Open Source CMS
- * Copyright (C) 2005-2012 Leo Feyer
+ * Copyright (C) 2005-2014 Leo Feyer
  *
  * Formerly known as TYPOlight Open Source CMS.
  *
@@ -21,7 +21,7 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Cliff Parnitzky 2011-2012
+ * @copyright  Cliff Parnitzky 2011-2014
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  * @license    LGPL
@@ -52,9 +52,9 @@ $GLOBALS['TL_DCA']['tl_user']['fields']['assignedMember'] = array
 	'filter'                  => true,
 	'search'                  => true,
 	'inputType'               => 'select',
-	'options_callback'        => array('tl_user_assignedMemeber', 'getUnassignedMembers'),
+	'foreignKey'            => 'tl_member.CONCAT(firstname, " ", lastname, " (", id, ")")',
 	'save_callback'           => array(array('tl_user_assignedMemeber', 'checkMemberIsAssignable')),
-	'eval'                    => array('tl_class'=>'w50')
+	'eval'                    => array('tl_class'=>'w50', 'includeBlankOption'=>true)
 );
 
 /**
@@ -94,31 +94,16 @@ class tl_user_assignedMemeber extends Backend
 	/**
 	 * Returns all members that are not assigned to an user
 	 */
-	public function checkMemberIsAssignable($varValue, DataContainer $dc) {
+	public function checkMemberIsAssignable($varValue, DataContainer $dc)
+	{
 		$memberList = $this->Database->prepare("SELECT id FROM tl_user WHERE assignedMember = ?")->execute($varValue);
-		if ($varValue > 0 && $memberList->next() && $memberList->id != $dc->id){
+		if ($varValue > 0 && $memberList->next() && $memberList->id != $dc->id)
+		{
 			throw new Exception($GLOBALS['TL_LANG']['tl_user']['assignedMember']['allreadyAssignedError']);
 		}
 		
 		return $varValue;
 	}
-	
-	/**
-	 * Returns all members that are not assigned to an user
-	 */
-	public function getUnassignedMembers() {
-		$unassignedMembers = array();
-		$unassignedMembers[''] = '-';
-		
-		$memberList = $this->Database->prepare("SELECT id, lastname, firstname FROM tl_member ORDER BY lastname, firstname")->execute();
-		
-		while ($memberList->next()) {
-			$unassignedMembers[$memberList->id] = ($memberList->lastname . ', ' . $memberList->firstname . ' (' . $memberList->id . ')');
-		}
-
-		return $unassignedMembers;
-	}
-
 }
 
 ?>

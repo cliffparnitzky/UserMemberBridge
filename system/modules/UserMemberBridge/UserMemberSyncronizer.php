@@ -85,8 +85,12 @@ class UserMemberSyncronizer extends Backend {
 	 * Syncronizes all fields from member to user, when the member was changed in member administration
 	 * @param DataContainer
 	 */
-	public function saveMemberFromBackend (DataContainer $dc) {
-		$member = $dc->activeRecord;
+	public function saveMemberFromBackend ($object) {
+		$member = $object;
+		if ($object instanceof DataContainer)
+		{
+			$member = $object->activeRecord;
+		}
 		if (!$GLOBALS['TL_CONFIG']['userMemberBridgeActivateAdminSecurity']) {
 			// admin security not active
 			$this->syncMemberWithUser($member);
@@ -160,7 +164,7 @@ class UserMemberSyncronizer extends Backend {
 			
 			if ($arrSyncFields) {
 				if (in_array('username', $arrSyncFields)) {
-					$username = $_POST['username'];
+					$username = $this->Input->post('username');
 					if ($username) {
 						$arrSet['username'] = $username;
 					}
@@ -168,12 +172,12 @@ class UserMemberSyncronizer extends Backend {
 				if (in_array('name', $arrSyncFields)) {
 					$usernameFormat = $GLOBALS['TL_CONFIG']['userMemberBridgeUsernameFormat'];
 					
-					$firstname = $_POST['firstname'];
+					$firstname = $this->Input->post('firstname');
 					if (!$firstname) {
 						$firstname = $user->firstname;
 					}
 					
-					$lastname = $_POST['lastname'];
+					$lastname = $this->Input->post('lastname');
 					if (!$lastname) {
 						$lastname = $user->lastname;
 					}
@@ -189,16 +193,25 @@ class UserMemberSyncronizer extends Backend {
 					}
 				}
 				if (in_array('email', $arrSyncFields)) {
-					$email = $_POST['email'];
+					$email = $this->Input->post('email');
 					if ($email) {
 						$arrSet['email'] = $email;
 					}
 				}
 				if (in_array('password', $arrSyncFields)) {
-					$password = $_POST['password'];
+					$password = $this->Input->post('password');
 					if ($password) {
-						$strSalt = substr(md5(uniqid(mt_rand(), true)), 0, 23);
-						$arrSet['password'] = sha1($strSalt . $password) . ':' . $strSalt;;
+						$strPassword = "";
+						if (version_compare(VERSION, '3.0', '<'))
+						{ 
+							$strSalt = substr(md5(uniqid(mt_rand(), true)), 0, 23);
+							$strPassword = sha1($strSalt . $password) . ':' . $strSalt;
+						}
+						else
+						{
+							$strPassword = Encryption::hash($password); 
+						}
+						$arrSet['password'] = $strPassword;
 					}
 				}
 				

@@ -84,7 +84,7 @@ array_insert
  * Class tl_user_assignedMemeber
  *
  * Provide miscellaneous methods that are used by the data configuration array.
- * @copyright  Cliff Parnitzky 2011
+ * @copyright  Cliff Parnitzky 2011-2014
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  * @license    LGPL

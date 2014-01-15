@@ -2,7 +2,7 @@
 
 /**
  * Contao Open Source CMS
- * Copyright (C) 2005-2012 Leo Feyer
+ * Copyright (C) 2005-2014 Leo Feyer
  *
  * Formerly known as TYPOlight Open Source CMS.
  *
@@ -21,7 +21,7 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Cliff Parnitzky 2011-2012
+ * @copyright  Cliff Parnitzky 2011-2014
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  * @license    LGPL
@@ -31,7 +31,7 @@
  * Class UserMemberBridgeSyncronizer
  *
  * Provide methods to syncronize data between member and user.
- * @copyright  Cliff Parnitzky 2011
+ * @copyright  Cliff Parnitzky 2011-2014
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  */
@@ -323,6 +323,9 @@ class UserMemberSyncronizer extends Backend {
 			
 			$arrSet = $this->getSyncFields($objUser->username, $objUser->name, '', $objUser->email, $objUser->password, false);
 			if (count($arrSet) > 0) {
+				
+				//TODO for Buttons "saveAndBack" and "saveAndNew" all mandatory fields musst be set !!!
+				
 				if (strlen($arrSet['username']) > 0 || strlen($arrSet['password']) > 0) {
 					$arrSet['login'] = 1;
 				}

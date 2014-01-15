@@ -2,7 +2,7 @@
 
 /**
  * Contao Open Source CMS
- * Copyright (C) 2005-2012 Leo Feyer
+ * Copyright (C) 2005-2014 Leo Feyer
  *
  * Formerly known as TYPOlight Open Source CMS.
  *
@@ -21,7 +21,7 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Cliff Parnitzky 2011-2012
+ * @copyright  Cliff Parnitzky 2011-2014
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  * @license    LGPL
@@ -37,7 +37,7 @@ $GLOBALS['TL_LANG']['MSC']['createUserMemberAndNew']  = 'Create and new';
 /**
  * Errors
  */
-$GLOBALS['TL_LANG']['ERR']['settingsNotCorrect']       = 'The settings are not correct. Please check these.';
+$GLOBALS['TL_LANG']['ERR']['settingsNotCorrect']       = 'The settings are not correct. Please check these in the system settings.';
 $GLOBALS['TL_LANG']['ERR']['noUnassignedUsersFound']   = 'There are no free assignable users in the system.';
 $GLOBALS['TL_LANG']['ERR']['noUnassignedMembersFound'] = 'There are no free assignable members in the system.';
 

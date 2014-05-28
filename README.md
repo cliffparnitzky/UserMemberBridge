@@ -7,10 +7,11 @@ Assigning members to users for synchronizing common account data.
 Installation
 ------------
 
-The extension can be installed using the Contao extension manager in the Contao
-back end. If you prefer to install it manually, download the files here:
+The extension can be installed using the Contao extension manager in the Contao backend.
 
-http://www.contao.org/en/extension-list/view/UserMemberBridge.en.html
+Or install it via [composer](https://packagist.org/packages/cliffparnitzky/user-member-bridge).
+
+If you prefer to install it manually, download the files here: http://www.contao.org/en/extension-list/view/UserMemberBridge.en.html
 
 
 Tracker
@@ -23,7 +24,7 @@ Compatibility
 -------------
 
 - min. version: Contao 2.9.5
-- max. version: Contao 3.2.x
+- max. version: Contao 3.3.x
 
 
 Dependency

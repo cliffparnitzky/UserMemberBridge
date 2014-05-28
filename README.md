@@ -11,7 +11,7 @@ The extension can be installed using the Contao extension manager in the Contao 
 
 Or install it via [composer](https://packagist.org/packages/cliffparnitzky/user-member-bridge).
 
-If you prefer to install it manually, download the files here: http://www.contao.org/en/extension-list/view/UserMemberBridge.en.html
+If you prefer to install it manually, download the latest release here: https://github.com/cliffparnitzky/UserMemberBridge/releases
 
 
 Tracker

@@ -36,6 +36,18 @@
  * @package    UserMemberBridge
  */
 class UserMemberSyncronizer extends Backend {
+	 /**
+	 * mySetNewPassword - Hook to syncronize member to user when password was changed by using the FE module 'Passwort vergessen'
+	 */
+
+        public function mySetNewPasswordHook($objUser, $strPassword)
+	{
+  	         if (!$objUser instanceof DataContainer && $objUser!= null) {
+			$this->syncMemberWithUser($objUser);
+	         }
+        $this->log('BE-User updated after FE-Member password lost' .'('.$objUser.')','mySetNewPasswordHook', TL_ACCESS);
+        }
+	
 	/**
 	 * Syncronizes all fields from user to member
 	 * @param DataContainer

@@ -33,7 +33,12 @@
 // Extend backend module configuration for global operation
 $GLOBALS['BE_MOD']['accounts']['user']['createUserForMember'] = array('UserMemberSyncronizer', 'createUserForMember');
 $GLOBALS['BE_MOD']['accounts']['member']['createMemberForUser'] = array('UserMemberSyncronizer', 'createMemberForUser');
- 
+
+/**
+ * Hook at setNewPassword
+ */
+$GLOBALS['TL_HOOKS']['setNewPassword'][] = array('UserMemberSyncronizer', 'mySetNewPasswordHook');
+
 /**
  * to fix height of style class w50 in backend
  */

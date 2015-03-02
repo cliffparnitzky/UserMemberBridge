@@ -1,8 +1,8 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php
 
 /**
  * Contao Open Source CMS
- * Copyright (C) 2005-2014 Leo Feyer
+ * Copyright (C) 2005-2015 Leo Feyer
  *
  * Formerly known as TYPOlight Open Source CMS.
  *
@@ -21,7 +21,7 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Cliff Parnitzky 2011-2014
+ * @copyright  Cliff Parnitzky 2011-2015
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  * @license    LGPL
@@ -52,9 +52,11 @@ $GLOBALS['TL_DCA']['tl_user']['fields']['assignedMember'] = array
 	'filter'                  => true,
 	'search'                  => true,
 	'inputType'               => 'select',
-	'foreignKey'            => 'tl_member.CONCAT(firstname, " ", lastname, " (", id, ")")',
+	'foreignKey'              => 'tl_member.CONCAT(firstname, " ", lastname, " (", id, ")")',
 	'save_callback'           => array(array('tl_user_assignedMemeber', 'checkMemberIsAssignable')),
-	'eval'                    => array('tl_class'=>'w50', 'includeBlankOption'=>true)
+	'eval'                    => array('tl_class'=>'w50', 'includeBlankOption'=>true),
+	'relation'                => array('type'=>'hasOne', 'load'=>'lazy'),
+	'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
 /**
@@ -75,7 +77,7 @@ array_insert
 		(
 			'label'      => &$GLOBALS['TL_LANG']['tl_user']['createUserForMember'],
 			'href'       => 'key=createUserForMember',
-			'attributes' => 'onclick="Backend.getScrollOffset();" style="background: url(system/modules/UserMemberBridge/html/createUserForMember.png) no-repeat scroll left center transparent; padding: 2px 0 3px 20px;"'
+			'attributes' => 'onclick="Backend.getScrollOffset();" style="background: url(system/modules/UserMemberBridge/assets/createUserForMember.png) no-repeat scroll left center transparent; padding: 2px 0 3px 20px; margin-left: 15px;"'
 		)
 	)
 );
@@ -84,7 +86,7 @@ array_insert
  * Class tl_user_assignedMemeber
  *
  * Provide miscellaneous methods that are used by the data configuration array.
- * @copyright  Cliff Parnitzky 2011-2014
+ * @copyright  Cliff Parnitzky 2011-2015
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  * @license    LGPL

@@ -1,8 +1,8 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
 
 /**
  * Contao Open Source CMS
- * Copyright (C) 2005-2014 Leo Feyer
+ * Copyright (C) 2005-2015 Leo Feyer
  *
  * Formerly known as TYPOlight Open Source CMS.
  *
@@ -21,7 +21,7 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Cliff Parnitzky 2011-2014
+ * @copyright  Cliff Parnitzky 2011-2015
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  * @license    LGPL
@@ -35,15 +35,8 @@ $GLOBALS['BE_MOD']['accounts']['user']['createUserForMember'] = array('UserMembe
 $GLOBALS['BE_MOD']['accounts']['member']['createMemberForUser'] = array('UserMemberSyncronizer', 'createMemberForUser');
 
 /**
- * Hook at setNewPassword
+ * Hooks
  */
-$GLOBALS['TL_HOOKS']['setNewPassword'][] = array('UserMemberSyncronizer', 'mySetNewPasswordHook');
+$GLOBALS['TL_HOOKS']['setNewPassword'][] = array('UserMemberSyncronizer', 'saveMember'); 
 
-/**
- * to fix height of style class w50 in backend
- */
-if (TL_MODE == 'BE')
-{
-	$GLOBALS['TL_CSS'][] = 'system/modules/UserMemberBridge/html/w50_fix.css'; 
-}  
 ?>

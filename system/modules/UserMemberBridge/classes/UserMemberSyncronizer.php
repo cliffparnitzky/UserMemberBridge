@@ -1,8 +1,8 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php
 
 /**
  * Contao Open Source CMS
- * Copyright (C) 2005-2014 Leo Feyer
+ * Copyright (C) 2005-2015 Leo Feyer
  *
  * Formerly known as TYPOlight Open Source CMS.
  *
@@ -21,38 +21,31 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Cliff Parnitzky 2011-2014
+ * @copyright  Cliff Parnitzky 2011-2015
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  * @license    LGPL
  */
 
 /**
+ * Run in a custom namespace, so the class can be replaced
+ */
+namespace UserMemberBridge;
+
+/**
  * Class UserMemberBridgeSyncronizer
  *
- * Provide methods to syncronize data between member and user.
- * @copyright  Cliff Parnitzky 2011-2014
+ * Provide methods to synchronize data between member and user.
+ * @copyright  Cliff Parnitzky 2011-2015
  * @author     Cliff Parnitzky
  * @package    UserMemberBridge
  */
-class UserMemberSyncronizer extends Backend {
-	 /**
-	 * mySetNewPassword - Hook to syncronize member to user when password was changed by using the FE module 'Passwort vergessen'
-	 */
-
-        public function mySetNewPasswordHook($objUser, $strPassword)
-	{
-  	         if (!$objUser instanceof DataContainer && $objUser!= null) {
-			$this->syncMemberWithUser($objUser);
-	         }
-        $this->log('BE-User updated after FE-Member password lost' .'('.$objUser.')','mySetNewPasswordHook', TL_ACCESS);
-        }
-	
+class UserMemberSyncronizer extends \Backend {
 	/**
-	 * Syncronizes all fields from user to member
+	 * Synchronizes all fields from user to member
 	 * @param DataContainer
 	 */
-	public function syncUserWithMember(DataContainer $dc) {
+	public function syncUserWithMember(\DataContainer $dc) {
 		$memberId = $this->Database->prepare("SELECT assignedMember FROM tl_user WHERE id = ?")->execute($dc->activeRecord->id);
 		if ($memberId->next()){
 			// we have an assigned member so lets update the data
@@ -94,79 +87,84 @@ class UserMemberSyncronizer extends Backend {
 	}
 	
 	/**
-	 * Syncronizes all fields from member to user, when the member was changed in member administration
+	 * Synchronizes all fields from member to user, when the member was changed
 	 * @param DataContainer
 	 */
-	public function saveMemberFromBackend ($object) {
-		$member = $object;
-		if ($object instanceof DataContainer)
+	public function saveMember ($object) {
+		$blnPayAttentionToAdminSecurity = true;
+		$member = null;
+		if ($object instanceof \FrontendUser || $object instanceof \Model\Collection)
+		{
+			$member = $object;
+			$blnPayAttentionToAdminSecurity = false;
+		}
+		else if ($object instanceof \DataContainer)
 		{
 			$member = $object->activeRecord;
 		}
-		if (!$GLOBALS['TL_CONFIG']['userMemberBridgeActivateAdminSecurity']) {
-			// admin security not active
-			$this->syncMemberWithUser($member);
-		} else {
-			// admin security active
-			$objAssignedUser = $this->Database->prepare("SELECT * FROM tl_user WHERE assignedMember = ?")->execute($member->id);
-			
-			if ($objAssignedUser->next()) {
-				// a user is assigned to the actual member
-				// at first synchronize, because fistname, lastname, email are okay
-				$this->syncMemberWithUser($member);
+		
+		if ($member != null)
+		{
+			if ($blnPayAttentionToAdminSecurity && $GLOBALS['TL_CONFIG']['userMemberBridgeActivateAdminSecurity'])
+			{
+				// admin security active
+				$objAssignedUser = $this->Database->prepare("SELECT * FROM tl_user WHERE assignedMember = ?")->execute($member->id);
 				
-				$this->import('BackendUser', 'User');
-				
-				// now check and reset login data, if executin user is a non admin and assigned user is an admin
-				if ($objAssignedUser->admin && !$this->User->isAdmin) {
-					// a non admin want to change data of an admin ... username and password are not allowed!!!
-					// reset login, username and password to the data of the assigned user (if changed or synchronization is enabled)
-					$arrSyncFields = deserialize($GLOBALS['TL_CONFIG']['userMemberBridgeSyncFields']);
-					if (in_array('username', $arrSyncFields) && $member->username != $objAssignedUser->username) {
-						$arrSet['username'] = $objAssignedUser->username;
-					}
-					if (in_array('password', $arrSyncFields) && $member->password != $objAssignedUser->password) {
-						$arrSet['password'] = $objAssignedUser->password;
-					}
+				if ($objAssignedUser->next()) {
+					// a user is assigned to the actual member
+					// at first synchronize, because fistname, lastname, email are okay
+					$this->syncMemberWithUser($member);
 					
-					if (count($arrSet) > 0) {
-						$this->Database->prepare("UPDATE tl_user %s WHERE id = ?")
-													 ->set($arrSet)
-													 ->execute($objAssignedUser->id);
+					$this->import('BackendUser', 'User');
+					
+					// now check and reset login data, if execution user is a non admin and assigned user is an admin
+					if ($objAssignedUser->admin && !$this->User->isAdmin) {
+						// a non admin want to change data of an admin ... username and password are not allowed!!!
+						// reset login, username and password to the data of the assigned user (if changed or synchronization is enabled)
+						$arrSyncFields = deserialize($GLOBALS['TL_CONFIG']['userMemberBridgeSyncFields']);
+						if (in_array('username', $arrSyncFields) && $member->username != $objAssignedUser->username) {
+							$arrSet['username'] = $objAssignedUser->username;
+						}
+						if (in_array('password', $arrSyncFields) && $member->password != $objAssignedUser->password) {
+							$arrSet['password'] = $objAssignedUser->password;
+						}
+						
+						if (count($arrSet) > 0) {
+							$this->Database->prepare("UPDATE tl_user %s WHERE id = ?")
+														 ->set($arrSet)
+														 ->execute($objAssignedUser->id);
 
-					 $this->Database->prepare("UPDATE tl_member %s WHERE id = ?")
-													 ->set($arrSet)
-													 ->execute($member->id);
-						$this->log('A non administrator (' . $this->User->name . ') tried to change login data of an administrator (' . $objAssignedUser->name . ') via member administration.', 'UserMemberSyncronizer saveMemberFromBackend()', TL_ERROR);
+						 $this->Database->prepare("UPDATE tl_member %s WHERE id = ?")
+														 ->set($arrSet)
+														 ->execute($member->id);
+							$this->log('A non administrator (' . $this->User->name . ') tried to change login data of an administrator (' . $objAssignedUser->name . ') via member administration.', 'UserMemberSyncronizer saveMemberFromBackend()', TL_ERROR);
+						}
 					}
 				}
 			}
+			else
+			{
+				// admin security not active
+				$this->syncMemberWithUser($member);
+			}
+		}
+		else
+		{
+			$this->log('Error while synchronizing member with user. Could not determine member.', 'UserMemberSyncronizer saveMember', TL_ERROR);
 		}
 	}
 	
 	/**
-	 * Syncronizes all fields from member to user, when the member was changed in member administration
-	 * $varValue The changed value.
-	 * $member The member.
+	 * Callback to execute reset the member assignment of an user, if the actual assigned member will be deleted
 	 */
-	public function saveMemberFromFronted ($varValue, $member) {
-		if (!$member instanceof DataContainer && $member != null) {
-			$this->syncMemberWithUser($member);
-		}
-		return $varValue;
-	}
-	
-	/**
-	 * Callback to execute reset the mamberassignement of an user, if the actual assigned member will be deleted
-	 */
-	public function deleteMember(DataContainer $dc) {
+	public function deleteMember(\DataContainer $dc) {
 		$arrSet['assignedMember'] = 0;
 		$this->Database->prepare("UPDATE tl_user %s WHERE assignedMember=?")->set($arrSet)->execute($dc->activeRecord->id);
 	}
 	
 	/**
-	 * Syncronizes all fields from member to user
-	 * @param DataContainer
+	 * Synchronizes all fields from member to user
+	 * @param user
 	 */
 	private function syncMemberWithUser($user) {
 		$userId = $this->Database->prepare("SELECT id FROM tl_user WHERE assignedMember = ?")->execute($user->id);
@@ -213,17 +211,7 @@ class UserMemberSyncronizer extends Backend {
 				if (in_array('password', $arrSyncFields)) {
 					$password = $this->Input->post('password');
 					if ($password) {
-						$strPassword = "";
-						if (version_compare(VERSION, '3.0', '<'))
-						{ 
-							$strSalt = substr(md5(uniqid(mt_rand(), true)), 0, 23);
-							$strPassword = sha1($strSalt . $password) . ':' . $strSalt;
-						}
-						else
-						{
-							$strPassword = Encryption::hash($password); 
-						}
-						$arrSet['password'] = $strPassword;
+						$arrSet['password'] = \Encryption::hash($password);
 					}
 				}
 				
@@ -242,7 +230,7 @@ class UserMemberSyncronizer extends Backend {
 			$this->redirect(str_replace('&key=createUserForMember', '', $this->Environment->request));
 		}
 
-		$this->Template = new BackendTemplate('be_createUserForMember');
+		$this->Template = new \BackendTemplate('be_createUserForMember');
 
 		$this->Template->member = $this->getMembersWidget();
 		$this->Template->hrefBack = ampersand(str_replace('&key=createUserForMember', '', $this->Environment->request));
@@ -305,7 +293,7 @@ class UserMemberSyncronizer extends Backend {
 			$this->redirect(str_replace('&key=createMemberForUser', '', $this->Environment->request));
 		}
 
-		$this->Template = new BackendTemplate('be_createMemberForUser');
+		$this->Template = new \BackendTemplate('be_createMemberForUser');
 
 		$this->Template->user = $this->getUsersWidget();
 		$this->Template->hrefBack = ampersand(str_replace('&key=createMemberForUser', '', $this->Environment->request));
@@ -336,7 +324,7 @@ class UserMemberSyncronizer extends Backend {
 			$arrSet = $this->getSyncFields($objUser->username, $objUser->name, '', $objUser->email, $objUser->password, false);
 			if (count($arrSet) > 0) {
 				
-				//TODO for Buttons "saveAndBack" and "saveAndNew" all mandatory fields musst be set !!!
+				//TODO for Buttons "saveAndBack" and "saveAndNew" all mandatory fields must be set !!!
 				
 				if (strlen($arrSet['username']) > 0 || strlen($arrSet['password']) > 0) {
 					$arrSet['login'] = 1;
@@ -369,7 +357,7 @@ class UserMemberSyncronizer extends Backend {
 	{
 		$hasOptions = false;
 		
-		$widget = new SelectMenu();
+		$widget = new \SelectMenu();
 
 		$widget->id = 'member';
 		$widget->name = 'member';
@@ -395,7 +383,7 @@ class UserMemberSyncronizer extends Backend {
 			$widget->help = $GLOBALS['TL_LANG']['tl_user']['createUserForMember_member'][1];
 		}
 
-		// Valiate input
+		// Validate input
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_user_createUserForMember')
 		{
 			$widget->validate();
@@ -418,7 +406,7 @@ class UserMemberSyncronizer extends Backend {
 	{
 		$hasOptions = false;
 		
-		$widget = new SelectMenu();
+		$widget = new \SelectMenu();
 
 		$widget->id = 'user';
 		$widget->name = 'user';
@@ -444,7 +432,7 @@ class UserMemberSyncronizer extends Backend {
 			$widget->help = $GLOBALS['TL_LANG']['tl_member']['createMemberForUser_user'][1];
 		}
 
-		// Valiate input
+		// Validate input
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_member_createMemberForUser')
 		{
 			$widget->validate();
@@ -459,7 +447,7 @@ class UserMemberSyncronizer extends Backend {
 	}
 	
 	/**
-	 * Put field vaules into an array, if configured.
+	 * Put field values into an array, if configured.
 	 */
 	private function getSyncFields($username, $firstname, $lastname, $email, $password, $isMember) {
 		$arrSyncFields = deserialize($GLOBALS['TL_CONFIG']['userMemberBridgeSyncFields']);

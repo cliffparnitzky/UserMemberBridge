@@ -40,7 +40,7 @@ $GLOBALS['TL_DCA']['tl_settings']['fields']['userMemberBridgeSyncFields'] = arra
 	'inputType'               => 'checkbox',
 	'options'                 => array('username', 'name', 'email', 'password'),
 	'reference'               => &$GLOBALS['TL_LANG']['tl_settings']['userMemberBridgeSyncFields'],
-	'eval'                    => array('multiple'=>true, 'mandatory'=>true, 'tl_class'=>'w50')
+	'eval'                    => array('multiple'=>true, 'mandatory'=>true, 'tl_class'=>'clr w50')
 );
 $GLOBALS['TL_DCA']['tl_settings']['fields']['userMemberBridgeUsernameFormat'] = array(
 	'label'                   => &$GLOBALS['TL_LANG']['tl_settings']['userMemberBridgeUsernameFormat'],
